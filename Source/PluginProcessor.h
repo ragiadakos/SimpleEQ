@@ -104,7 +104,16 @@ private:
         HighCut
     };
 
-
+    void updatePeakFilter(const ChainSettings& chainSettings);
+    
+    // this helper function is used to update coefficients
+    // we make an alias to the type juce uses for the coeffs 
+    using Coefficients = Filter::CoefficientsPtr;
+    // we use static for convenience instead of scrolling up to make a free function
+    static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+    
+    
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };

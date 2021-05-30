@@ -109,22 +109,7 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     // get the parameters in a chainSettings struct
     auto chainSettings = getChainSettings(apvts);
 
-    // calculate coefficients using the juce helper funcions
-    auto peakCoeficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, 
-        chainSettings.peakFreq, 
-        chainSettings.peakQ, 
-        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibells));
-
-
-
-    // the coefficients object is a reference-counted wrapper around an array
-    // that is allocated on the heap
-    // we need to copy its values over so we need to dereference it
-    // !!!allocating on the heap on an audio callback is bad!!!!
-    // but we are gonna ignore that design flaw for now
-    *leftChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
-    *rightChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
-
+    updatePeakFilter(chainSettings);
 
     // this function will return an array with one coefficient object for every 2 filter orders
     // thus we need to provide it with 2, 4, 6, 8 for our 12, 24 ,36 ,48 db/Oct slopes
@@ -265,14 +250,8 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     auto chainSettings = getChainSettings(apvts);
 
-    auto peakCoeficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
-        chainSettings.peakFreq,
-        chainSettings.peakQ,
-        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibells));
+    updatePeakFilter(chainSettings);
 
-
-    *leftChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
-    *rightChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
 
     auto cutCoefficients = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(chainSettings.lowCutFreq,
         getSampleRate(),
@@ -423,6 +402,30 @@ ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
     return settings;
 }
 
+void SimpleEQAudioProcessor::updatePeakFilter(const ChainSettings& chainSettings)
+{
+    // calculate coefficients using the juce helper funcions
+    auto peakCoeficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+        chainSettings.peakFreq,
+        chainSettings.peakQ,
+        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibells));
+
+    // the coefficients object is a reference-counted wrapper around an array
+    // that is allocated on the heap
+    // we need to copy its values over so we need to dereference it
+    // !!!allocating on the heap on an audio callback is bad!!!!
+    // but we are gonna ignore that design flaw for now
+
+    updateCoefficients(leftChain.get<ChainPossitions::Peak>().coefficients, peakCoeficients);
+    updateCoefficients(rightChain.get<ChainPossitions::Peak>().coefficients, peakCoeficients);
+
+
+}
+
+void SimpleEQAudioProcessor::updateCoefficients(Coefficients& old, const Coefficients& replacements)
+{
+    *old = *replacements;
+}
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
 {
