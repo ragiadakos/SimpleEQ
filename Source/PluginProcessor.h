@@ -10,6 +10,14 @@
 
 #include <JuceHeader.h>
 
+// this enum helps with setting the coefficients for the filters
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48,
+};
 
 
 // struct that contains the filter parameters
@@ -17,7 +25,9 @@ struct ChainSettings
 {
     float peakFreq{ 0 }, peakGainInDecibells{ 0 }, peakQ{ 1.f };
     float lowCutFreq{ 0 }, highCutFreq{ 0 };
-    int lowCutSlope{ 0 }, highCutSlope{ 0 };
+    
+    // Instead of integers the slopes are now expressed in Slope type objects
+    Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
 
 };
 
