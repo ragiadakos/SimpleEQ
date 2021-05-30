@@ -10,6 +10,21 @@
 
 #include <JuceHeader.h>
 
+
+
+// struct that contains the filter parameters
+struct ChainSettings
+{
+    float peakFreq{ 0 }, peakGainInDecibells{ 0 }, peakQ{ 1.f };
+    float lowCutFreq{ 0 }, highCutFreq{ 0 };
+    int lowCutSlope{ 0 }, highCutSlope{ 0 };
+
+};
+
+// function that return the parameters in a ChainSettings struct
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+
+
 //==============================================================================
 /**
 */
@@ -70,6 +85,15 @@ private:
 
     // declare the 2 channels for stereo processing
     MonoChain leftChain, rightChain;
+
+    // we need this enum class to easilly access the individual filters inside the chain
+    enum ChainPossitions
+    {
+        LowCut,
+        Peak,
+        HighCut
+    };
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)

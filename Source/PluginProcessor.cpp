@@ -104,6 +104,28 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
     leftChain.prepare(spec);
     rightChain.prepare(spec);
+
+    // Now we can calculate the filter coefficients
+    // get the parameters in a chainSettings struct
+    auto chainSettings = getChainSettings(apvts);
+
+    // calculate coefficients using the juce helper funcions
+    auto peakCoeficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(sampleRate, 
+        chainSettings.peakFreq, 
+        chainSettings.peakQ, 
+        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibells));
+
+
+
+    // the coefficients object is a reference-counted wrapper around an array
+    // that is allocated on the heap
+    // we need to copy its values over so we need to dereference it
+    // !!!allocating on the heap on an audio callback is bad!!!!
+    // but we are gonna ignore that design flaw for now
+    *leftChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
+    *rightChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
+
+
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -153,6 +175,18 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
+
+    auto chainSettings = getChainSettings(apvts);
+
+    auto peakCoeficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+        chainSettings.peakFreq,
+        chainSettings.peakQ,
+        juce::Decibels::decibelsToGain(chainSettings.peakGainInDecibells));
+
+
+    *leftChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
+    *rightChain.get<ChainPossitions::Peak>().coefficients = *peakCoeficients;
+
     // First we crate an audioBlock which grabs this buffer
     juce::dsp::AudioBlock<float> block(buffer);
 
@@ -197,6 +231,22 @@ void SimpleEQAudioProcessor::setStateInformation (const void* data, int sizeInBy
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
 }
+
+ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts)
+{
+    ChainSettings settings;
+
+    settings.lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
+    settings.highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
+    settings.peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
+    settings.peakGainInDecibells = apvts.getRawParameterValue("Peak Gain")->load();
+    settings.peakQ = apvts.getRawParameterValue("Peak Q")->load();
+    settings.lowCutSlope = apvts.getRawParameterValue("LowCut Slope")->load();
+    settings.highCutSlope = apvts.getRawParameterValue("HighCut Slope")->load();
+
+    return settings;
+}
+
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::createParameterLayout()
 {
