@@ -109,6 +109,10 @@ private:
     };
 
     void updatePeakFilter(const ChainSettings& chainSettings);
+    void updateLowCutFilter(const ChainSettings& chainSettings);
+    void updateHighCutFilter(const ChainSettings& chainSettings);
+
+    void updateFilters();
     
     // this helper function is used to update coefficients
     // we make an alias to the type juce uses for the coeffs 
@@ -130,16 +134,16 @@ private:
     // for the parameters of our low cut update function 
     // so we use a templated function
     template<typename ChainType, typename CoefficientType>
-    void updateCutFilter(ChainType& lowCut,
+    void updateCutFilter(ChainType& cut,
         const CoefficientType& cutCoefficients,
-        const ChainSettings& chainSettings)
+        const Slope& cutSlope)
     {
         
         // compiles without the template keyword ??
-        lowCut.template setBypassed<0>(true);
-        lowCut.template setBypassed<1>(true);
-        lowCut.template setBypassed<2>(true);
-        lowCut.template setBypassed<3>(true);
+        cut.template setBypassed<0>(true);
+        cut.template setBypassed<1>(true);
+        cut.template setBypassed<2>(true);
+        cut.template setBypassed<3>(true);
 
 
 
@@ -147,16 +151,16 @@ private:
         // if we reverse the switch order we can leverage
         // case passthrough to eliminate code duplication
         // we dont break our switch statement
-        switch (chainSettings.lowCutSlope)
+        switch (cutSlope)
         {
         case Slope_48:
-            update<3>(lowCut, cutCoefficients);
+            update<3>(cut, cutCoefficients);
         case Slope_36:
-            update<2>(lowCut, cutCoefficients);
+            update<2>(cut, cutCoefficients);
         case Slope_24:
-            update<1>(lowCut, cutCoefficients);
+            update<1>(cut, cutCoefficients);
         case Slope_12:
-            update<0>(lowCut, cutCoefficients);
+            update<0>(cut, cutCoefficients);
         }
 
     }
