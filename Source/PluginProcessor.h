@@ -84,11 +84,14 @@ public:
 
 private:
     // Create namespace aliases
-    // this is a generic IIR filter class that can be used to represent a single cut or peak filter
+    // this is a generic IIR filter class that can be used to represent 
+    // a single cut or peak filter
     using Filter = juce::dsp::IIR::Filter<float>;
 
-    // the default juce IIR cut filters slope is 12 db/Oct so we need 4 to acheive 48 db/Oct slope
-    // we will use the same processor chain for both cut filters since they have the same architecture
+    // the default juce IIR cut filters slope is 12 db/Oct 
+    // so we need 4 to acheive 48 db/Oct slope
+    // we will use the same processor chain for both cut filters 
+    // since they have the same architecture
     using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
 
     using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
@@ -96,7 +99,8 @@ private:
     // declare the 2 channels for stereo processing
     MonoChain leftChain, rightChain;
 
-    // we need this enum class to easilly access the individual filters inside the chain
+    // we need this enum class to easilly access the individual filters 
+    // inside the chain
     enum ChainPossitions
     {
         LowCut,
@@ -109,10 +113,64 @@ private:
     // this helper function is used to update coefficients
     // we make an alias to the type juce uses for the coeffs 
     using Coefficients = Filter::CoefficientsPtr;
-    // we use static for convenience instead of scrolling up to make a free function
+    // we use static for convenience instead of scrolling up 
+    //to make a free function
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
     
-    
+    // we are not sure what typenames to use 
+    // for the parameters of our low cut update function 
+    // so we use a templated function
+    template<typename ChainType, typename CoefficientType>
+    void updateCutFilter(ChainType& lowCut,
+        const CoefficientType& cutCoefficients,
+        const ChainSettings& chainSettings)
+    {
+        
+        // compiles without the template keyword ??
+        lowCut.template setBypassed<0>(true);
+        lowCut.template setBypassed<1>(true);
+        lowCut.template setBypassed<2>(true);
+        lowCut.template setBypassed<3>(true);
+
+        // now for each setting we will assign the respective set of coeffs and unbypass it
+        switch (chainSettings.lowCutSlope)
+        {
+        case Slope_12:
+            *lowCut.template get<0>().coefficients = *cutCoefficients[0];
+            lowCut.template setBypassed<0>(false);
+            break;
+        case Slope_24:
+            *lowCut.template get<0>().coefficients = *cutCoefficients[0];
+            lowCut.template setBypassed<0>(false);
+            *lowCut.template get<1>().coefficients = *cutCoefficients[1];
+            lowCut.template setBypassed<1>(false);
+            break;
+        case Slope_36:
+            *lowCut.template get<0>().coefficients = *cutCoefficients[0];
+            lowCut.template setBypassed<0>(false);
+            *lowCut.template get<1>().coefficients = *cutCoefficients[1];
+            lowCut.template setBypassed<1>(false);
+            *lowCut.template get<2>().coefficients = *cutCoefficients[2];
+            lowCut.template setBypassed<2>(false);
+            break;
+        case Slope_48:
+            *lowCut.template get<0>().coefficients = *cutCoefficients[0];
+            lowCut.template setBypassed<0>(false);
+            *lowCut.template get<1>().coefficients = *cutCoefficients[1];
+            lowCut.template setBypassed<1>(false);
+            *lowCut.template get<2>().coefficients = *cutCoefficients[2];
+            lowCut.template setBypassed<2>(false);
+            *lowCut.template get<3>().coefficients = *cutCoefficients[3];
+            lowCut.template setBypassed<3>(false);
+            break;
+        }
+
+    }
+
+
+
+
+
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
