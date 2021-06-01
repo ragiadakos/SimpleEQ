@@ -41,12 +41,94 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 //==============================================================================
 void SimpleEQAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    using namespace juce;
+    g.fillAll (Colours::black);
 
-    g.setColour (juce::Colours::white);
-    g.setFont (32.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    auto bounds = getLocalBounds();
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+
+    auto w = responseArea.getWidth();
+
+    // we want to draw the filter response curve
+    // we are going to use the getMagnitudeForFrequency() function
+    // that returns the magnitude frequency response of the filter 
+    // for a given frequency and sample rate.
+    // we need the chain elements first
+    auto& lowcut = monoChain.get<ChainPossitions::LowCut>();
+    auto& peak = monoChain.get<ChainPossitions::Peak>();
+    auto& highcut = monoChain.get<ChainPossitions::HighCut>();
+    // we get the sr from the processor
+    auto sampleRate = audioProcessor.getSampleRate();
+    // a place to store all these magnitudes
+    std::vector<double> mags;
+    // preallocate the space we need
+    mags.resize(w);
+
+    //  iterate through the pixels and draw the filter response
+    for (int i = 0; i < w; ++i)
+    {
+        
+        double mag = 1.f;
+        // map our width pixels to log scale 
+        // so we can display frequencies correctlly
+        auto freq = mapToLog10(double(i) / double(w), 20.0, 2000.0);
+
+        // get the response curve for each filter on each pixel/freq
+        if (!monoChain.isBypassed<ChainPossitions::Peak>())
+            mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
+       
+        if (!lowcut.isBypassed<0>())
+            mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<1>())
+            mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<2>())
+            mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<3>())
+            mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        
+        if (!highcut.isBypassed<0>())
+            mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<1>())
+            mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<2>())
+            mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        if (!lowcut.isBypassed<3>())
+            mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+
+        // store the value to our vector in dB
+        mags[i] = Decibels::gainToDecibels(mag);
+
+    }
+
+    // Draw response
+
+    Path responseCurve;
+    // get min and max of the window
+    const double outputMin = responseArea.getBottom();
+    const double outpuMax = responseArea.getY();
+    // lambda function to help us map the mag value 
+    // to our response are height
+    auto map = [outputMin, outpuMax](double input)
+    {
+        return jmap(input, -24.0, +24.0, outputMin, outpuMax);
+    };
+
+    // start a new subpath with the first mangitude
+    responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
+
+    // create lineTo for all the magnitudes
+    for (size_t i = 1; i < mags.size(); ++i)
+    {
+        responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
+    }
+
+    // draw border and path
+
+    g.setColour(Colours::orange);
+    g.drawRoundedRectangle(responseArea.toFloat(), 4.f, 1.f);
+
+    g.setColour(Colours::white);
+    g.strokePath(responseCurve, PathStrokeType(2.0f));
 }
 
 void SimpleEQAudioProcessorEditor::resized()
