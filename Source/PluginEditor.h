@@ -40,15 +40,27 @@ private:
     SimpleEQAudioProcessor& audioProcessor;
 
     // Create our custom Sliders
-    CustomRotarySlider peakFreqSlider,
-    peakGainSlider,
-    peakQSlider,
-    lowCutFreqSlider,
-    highCutFreqSlider,
-    lowCutSlopeSlider,
-    highCutSlopeSlider;
+    CustomRotarySlider 
+        peakFreqSlider,
+        peakGainSlider,
+        peakQSlider,
+        lowCutFreqSlider,
+        highCutFreqSlider,
+        lowCutSlopeSlider,
+        highCutSlopeSlider;
 
 
+    using APVTS = juce::AudioProcessorValueTreeState;
+    using Attachment = APVTS::SliderAttachment;
+
+    Attachment
+        peakFreqSliderAttachment,
+        peakGainSliderAttachment,
+        peakQSliderAttachment,
+        lowCutFreqSliderAttachment,
+        highCutFreqSliderAttachment,
+        lowCutSlopeSliderAttachment,
+        highCutSlopeSliderAttachment;
        
     // this function gives all our components 
     // in a vector so we can iterate easilly
