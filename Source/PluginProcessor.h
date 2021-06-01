@@ -19,6 +19,15 @@ enum Slope
     Slope_48,
 };
 
+// we need this enum class to easilly access the individual filters 
+// inside the chain
+enum ChainPossitions
+{
+    LowCut,
+    Peak,
+    HighCut
+};
+
 
 // struct that contains the filter parameters
 struct ChainSettings
@@ -33,6 +42,20 @@ struct ChainSettings
 
 // function that return the parameters in a ChainSettings struct
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
+    
+// Create namespace aliases
+// this is a generic IIR filter class that can be used to represent 
+// a single cut or peak filter
+using Filter = juce::dsp::IIR::Filter<float>;
+
+// the default juce IIR cut filters slope is 12 db/Oct 
+// so we need 4 to acheive 48 db/Oct slope
+// we will use the same processor chain for both cut filters 
+// since they have the same architecture
+using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
+
+using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
+
 
 
 //==============================================================================
@@ -83,31 +106,9 @@ public:
     juce::AudioProcessorValueTreeState apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
 private:
-    // Create namespace aliases
-    // this is a generic IIR filter class that can be used to represent 
-    // a single cut or peak filter
-    using Filter = juce::dsp::IIR::Filter<float>;
-
-    // the default juce IIR cut filters slope is 12 db/Oct 
-    // so we need 4 to acheive 48 db/Oct slope
-    // we will use the same processor chain for both cut filters 
-    // since they have the same architecture
-    using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-
-    using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
-
     // declare the 2 channels for stereo processing
     MonoChain leftChain, rightChain;
-
-    // we need this enum class to easilly access the individual filters 
-    // inside the chain
-    enum ChainPossitions
-    {
-        LowCut,
-        Peak,
-        HighCut
-    };
-
+        
     void updatePeakFilter(const ChainSettings& chainSettings);
     void updateLowCutFilter(const ChainSettings& chainSettings);
     void updateHighCutFilter(const ChainSettings& chainSettings);
