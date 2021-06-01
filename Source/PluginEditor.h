@@ -11,6 +11,16 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+// struct that helps up build rotary sliders without textbox
+struct CustomRotarySlider : juce::Slider
+{
+    CustomRotarySlider() : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+        juce::Slider::TextEntryBoxPosition::NoTextBox)
+    {
+
+    }
+};
+
 //==============================================================================
 /**
 */
@@ -28,6 +38,22 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     SimpleEQAudioProcessor& audioProcessor;
+
+    // Create our custom Sliders
+    CustomRotarySlider peakFreqSlider,
+    peakGainSlider,
+    peakQSlider,
+    lowCutFreqSlider,
+    highCutFreqSlider,
+    lowCutSlopeSlider,
+    highCutSlopeSlider;
+
+
+       
+    // this function gives all our components 
+    // in a vector so we can iterate easilly
+    // through them
+    std::vector<juce::Component*> getComps();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessorEditor)
 };
