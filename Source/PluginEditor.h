@@ -18,13 +18,13 @@ struct LookAndFeel : juce::LookAndFeel_V4
         float sliderPosProportional,
         float rotaryStartAngle,
         float rotaryEndAngle,
-        juce::Slider&) override;
+        juce::Slider& slider) override;
 };
 
-// struct that helps up build rotary sliders without textbox
 struct RotarySliderWithLabels : juce::Slider
 {
-    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
+    RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix) 
+        : juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
         juce::Slider::TextEntryBoxPosition::NoTextBox),
         param(&rap),
         suffix(unitSuffix)
@@ -40,7 +40,7 @@ struct RotarySliderWithLabels : juce::Slider
     void paint(juce::Graphics& g) override;
     juce::Rectangle<int> getSliderBounds() const;
     int getTextHeight() const { return 14; }
-    juce::String getDisplayString();
+    juce::String getDisplayString() const;
 private:
     LookAndFeel lnf;
     juce::RangedAudioParameter* param;

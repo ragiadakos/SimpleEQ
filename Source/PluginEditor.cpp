@@ -17,7 +17,7 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     float sliderPosProportional,
     float rotaryStartAngle,
     float rotaryEndAngle,
-    juce::Slider&)
+    juce::Slider& slider)
 {
     using namespace juce;
 
@@ -37,27 +37,49 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     g.setColour(Colour(255u, 154u, 1u));
     g.drawEllipse(bounds, 1.f);
 
-    auto center = bounds.getCentre();
+    if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
+    {
+        auto center = bounds.getCentre();
+        Path p;
+
+        Rectangle<float> r;
+        r.setLeft(center.getX() - 2);
+        r.setRight(center.getX() + 2);
+        r.setTop(bounds.getY());
+        r.setBottom(center.getY() - rswl->getTextHeight() * 1.5);
+
+        p.addRoundedRectangle(r, 2.f);
+
+        jassert(rotaryStartAngle < rotaryEndAngle); 
+
+        auto sliderAngRad = jmap(sliderPosProportional, 0.0f, 1.0f, rotaryStartAngle, rotaryEndAngle);
+
+        p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
 
 
-    Path p;
+        g.fillPath(p);
 
-    Rectangle<float> r;
-    r.setLeft(center.getX() - 2);
-    r.setRight(center.getX() + 2);
-    r.setTop(bounds.getY());
-    r.setBottom(center.getY());
+        g.setFont(rswl->getTextHeight());
+        auto text = rswl->getDisplayString();
+        auto stringWidth = g.getCurrentFont().getStringWidth(text);
 
-    p.addRectangle(r);
+        r.setSize(stringWidth + 4, rswl->getTextBoxHeight() + 2);
+        r.setCentre(bounds.getCentre());
 
-    jassert(rotaryStartAngle < rotaryEndAngle); 
+        g.setColour(Colours::black);
+        g.fillRect(r);
 
-    auto sliderAngRad = jmap(sliderPosProportional, 0.0f, 1.0f, rotaryStartAngle, rotaryEndAngle);
+        g.setColour(Colours::white);
+        g.drawFittedText(text,
+            r.toNearestInt(),
+            Justification::centred,
+            1);
 
-    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+    }
 
 
-    g.fillPath(p);
+
+
 
 }
 
@@ -108,6 +130,14 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
     return r;
 }
+
+juce::String RotarySliderWithLabels::getDisplayString() const
+{
+    return juce::String(getValue());
+
+}
+
+
 
 //==============================================================================
 
