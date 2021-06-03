@@ -29,6 +29,23 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
     auto bounds = Rectangle<float>(x, y, width, height);
 
+    
+    // make bounds circular
+
+    int dif = abs(width - height);
+
+    if (width > height)
+    {
+        bounds.removeFromLeft(dif / 2);
+        bounds.removeFromRight(dif / 2);
+    }
+    else
+    {
+        bounds.removeFromTop(dif / 2);
+        bounds.removeFromBottom(dif / 2);
+    }
+
+
     g.setColour(Colour(97u, 18u, 167u));
     g.fillEllipse(bounds);
 
