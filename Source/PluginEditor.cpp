@@ -156,6 +156,22 @@ void SimpleEQAudioProcessorEditor::resized()
 }
 
 
+void SimpleEQAudioProcessorEditor::parameterValueChanged(int parameterIndex, float newValue)
+{
+    parametersChanged.set(true);
+}
+
+void SimpleEQAudioProcessorEditor::timerCallback()
+{
+    if (parametersChanged.compareAndSetBool(false, true))
+    {
+        // update monoChain
+
+        // signal a repaint
+    }
+}
+
+
 std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
 {
     return
