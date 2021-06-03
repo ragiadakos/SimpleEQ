@@ -301,19 +301,21 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
 {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
+    // slew rate doesnt work since we changed the sliders from CustomRotarySlider to RotarySliderWithLabel
+    // so  i changed it back to 1
     layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq", 
         "LowCut Freq", 
-        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f),
+        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 1.0f),
         20.0f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq", 
         "HighCut Freq", 
-        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f),
+        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 1.0f),
         20000.0f));
     
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq", 
         "Peak Freq", 
-        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f),
+        juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 1.0f),
         750.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain", 

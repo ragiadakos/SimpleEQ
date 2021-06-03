@@ -150,7 +150,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
         param->addListener(this);
     }
 
-    startTimer(60);
+    startTimerHz(60);
 
 }
 
@@ -174,6 +174,7 @@ void ResponseCurveComponent::timerCallback()
 {
     if (parametersChanged.compareAndSetBool(false, true))
     {
+        //DBG("callback");
         // update monoChain
 
         // grab the mono chain
