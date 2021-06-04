@@ -156,7 +156,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
 
 ResponseCurveComponent::~ResponseCurveComponent()
 {
-    // if we restister listeners we need to also deregister
+    // if we register listeners we need to also deregister
     const auto& params = audioProcessor.getParameters();
     for (auto param : params)
     {
@@ -319,6 +319,8 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     {
         addAndMakeVisible(comp);
     }
+
+    responseCurveComponent.parametersChanged.set(true);
 
     setSize (600, 400);
 }
