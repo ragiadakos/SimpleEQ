@@ -352,8 +352,6 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
         addAndMakeVisible(comp);
     }
 
-    responseCurveComponent.parametersChanged.set(true);
-
     setSize (600, 400);
 }
 

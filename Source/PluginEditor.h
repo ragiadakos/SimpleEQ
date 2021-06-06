@@ -60,8 +60,8 @@ struct ResponseCurveComponent : juce::Component
     void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override { }
     void timerCallback() override;
     void paint(juce::Graphics&) override;
-    juce::Atomic<bool> parametersChanged{ false };
 private:
+    juce::Atomic<bool> parametersChanged{ true };
     SimpleEQAudioProcessor& audioProcessor;
 
     MonoChain monoChain;
