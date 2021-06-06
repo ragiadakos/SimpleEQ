@@ -70,10 +70,12 @@ struct ResponseCurveComponent : juce::Component
     void timerCallback() override;
     void paint(juce::Graphics&) override;
 private:
-    juce::Atomic<bool> parametersChanged{ true };
+    juce::Atomic<bool> parametersChanged{ false };
     SimpleEQAudioProcessor& audioProcessor;
 
     MonoChain monoChain;
+
+    void updateChain();
 
 };
 //==============================================================================
