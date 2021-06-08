@@ -17,15 +17,32 @@ struct Fifo
 {
     void prepare(int numChannels, int numSamples)
     {
+        static_assert(std::is_same_v<T, juce::AudioBuffer<float>>,
+            "prepare(numChannels, numSamples) should only be used when the FIFO is holding juce::AudioBuffer<float> data");
+
+
         for (auto& buffer : buffers)
         {
             buffer.setSize(numChannels,
                 numSamples,
-                false,
-                true,
-                true);
+                false, // clear everything
+                true,  // including the extraspace
+                true); // avoid reallocating if you can
             buffer.clear();
         }
+    }
+
+    void prepare(size_t numElements)
+    {
+        static_assert(std::is_same_v<T, std::vector<float>>,
+            "prepare(numChannels) should only be used when the FIFO is holding std::vector<float> data");
+         
+        for (auto& buffer : buffers)
+        {
+            buffer.clear();
+            buffer.resize(numElements, 0);
+        }
+
     }
 
     bool push(const T& t)
@@ -44,7 +61,7 @@ struct Fifo
         auto read = fifo.read(1);
         if (read.blockSize1 > 0)
         {
-            t = buffers.[read.startIndex1];
+            t = buffers[read.startIndex1];
             return true;
         }
         return false;
@@ -59,6 +76,7 @@ private:
     std::array<T, Capacity> buffers;
     juce::AbstractFifo fifo{ Capacity };
 };
+
 // our analyer will display 2 fft curves 1 for each channel
 // we are going to express that programmatically
 
@@ -80,7 +98,7 @@ struct SingleChannelSampleFifo
     {
         jassert(prepared.get());
         jassert(buffer.getNumChannels() > channelToUse);
-        auto* chanellPtr = buffer.getReadPointer(channelToUse);
+        auto* channelPtr = buffer.getReadPointer(channelToUse);
 
         for (int i = 0; i < buffer.getNumSamples(); ++i)
         {
@@ -307,10 +325,20 @@ public:
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
     juce::AudioProcessorValueTreeState apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
+    using BlockType = juce::AudioBuffer<float>;
+
+    SingleChannelSampleFifo<BlockType> leftChannelFifo{ Channel::Left };
+    SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
+
+
+
+
 private:
     // declare the 2 channels for stereo processing
     MonoChain leftChain, rightChain;
         
+
+
     void updatePeakFilter(const ChainSettings& chainSettings);
     void updateLowCutFilter(const ChainSettings& chainSettings);
     void updateHighCutFilter(const ChainSettings& chainSettings);
