@@ -226,7 +226,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) :
     48000 / 2048 = 23Hz per bin    
     */
 
-    leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+    leftChannelFFTDataGenerator.changeOrder(FFTOrder::order8192);
     monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
 
    
@@ -460,7 +460,7 @@ void ResponseCurveComponent::resized()
     auto right = renderArea.getRight();
     auto top = renderArea.getY();
     auto bottom = renderArea.getBottom();
-    auto width = getWidth();
+    auto width = renderArea.getWidth();
 
 
     Array<float> xs;
