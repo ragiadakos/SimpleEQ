@@ -80,7 +80,52 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
             1);
 
     }
+}
 
+void LookAndFeel::drawToggleButton(juce::Graphics& g,
+    juce::ToggleButton& toggleButton,
+    bool shouldDrawButtonAsHighlighted,
+    bool shouldDrawButtonAsDown)
+{
+    using namespace juce;
+
+    Path powerButton;
+
+    auto bounds = toggleButton.getLocalBounds();
+    /*g.setColour(Colours::red);
+    g.drawRect(bounds);*/
+
+
+    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
+
+    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+
+    float ang = 30.f;
+
+    size -= 6;
+
+    powerButton.addCentredArc(r.getCentreX(), 
+        r.getCentreY(), 
+        size * 0.5f, 
+        size * 0.5f, 
+        0.f, 
+        degreesToRadians(ang), 
+        degreesToRadians(360.f - ang),
+        true);
+
+    powerButton.startNewSubPath(r.getCentreX(), r.getY());
+    powerButton.lineTo(r.getCentre());
+
+    PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
+
+    auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colours::orange;
+
+    g.setColour(color);    
+
+    g.strokePath(powerButton, pst);
+    g.drawEllipse(r, 2);
+
+    
 
 
 
@@ -104,17 +149,17 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
     g.drawRect(getLocalBounds());
     g.setColour(Colours::yellow);
     g.drawRect(sliderBounds);*/
-
-    getLookAndFeel().drawRotarySlider(g, 
-        sliderBounds.getX(), 
-        sliderBounds.getY(), 
-        sliderBounds.getWidth(), 
+    
+    getLookAndFeel().drawRotarySlider(g,
+        sliderBounds.getX(),
+        sliderBounds.getY(),
+        sliderBounds.getWidth(),
         sliderBounds.getHeight(),
         jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0),
         startAng, 
         endAng,
         *this);
-
+    
 
     auto center = sliderBounds.toFloat().getCentre();
     auto radius = sliderBounds.getWidth() * 0.5;
@@ -678,17 +723,24 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     highCutSlopeSlider.labels.add({ 1.f, "48" });
 
 
+
     for (auto* comp : getComps())
     {
         addAndMakeVisible(comp);
     }
 
+    peakBypassButton.setLookAndFeel(&lnf);
+    lowcutBypassButton.setLookAndFeel(&lnf);
+    highcutBypassButton.setLookAndFeel(&lnf);
 
     setSize (600, 480);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
 {
+    peakBypassButton.setLookAndFeel(nullptr);
+    lowcutBypassButton.setLookAndFeel(nullptr);
+    highcutBypassButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
