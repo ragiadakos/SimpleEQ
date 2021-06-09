@@ -272,6 +272,12 @@ private:
     
 
 };
+
+
+struct PowerButton : juce::ToggleButton { };
+struct AnalyserButton : juce::ToggleButton { };
+
+
 //==============================================================================
 /**
 */
@@ -317,10 +323,11 @@ private:
        
     
     
-    juce::ToggleButton lowcutBypassButton,
+    PowerButton lowcutBypassButton,
         highcutBypassButton,
-        peakBypassButton,
-        analyserEnabledButton;
+        peakBypassButton;
+
+    AnalyserButton analyserEnabledButton;
     
     using ButtonAttachment = APVTS::ButtonAttachment;
 

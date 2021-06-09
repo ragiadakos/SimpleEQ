@@ -89,43 +89,75 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
 {
     using namespace juce;
 
-    Path powerButton;
+    if (auto* pb = dynamic_cast<PowerButton*>(&toggleButton))
+    {
+        Path powerButton;
 
-    auto bounds = toggleButton.getLocalBounds();
-    /*g.setColour(Colours::red);
-    g.drawRect(bounds);*/
+        auto bounds = toggleButton.getLocalBounds();
+        /*g.setColour(Colours::red);
+        g.drawRect(bounds);*/
 
 
-    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - /*JUCE_LIVE_CONSTANT(6);*/ 6;
+        auto size = jmin(bounds.getWidth(), bounds.getHeight()) - /*JUCE_LIVE_CONSTANT(6);*/ 6;
 
-    auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
+        auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
 
-    float ang = /*JUCE_LIVE_CONSTANT(30);*/ 30.f;
+        float ang = /*JUCE_LIVE_CONSTANT(30);*/ 30.f;
 
-    size -= /*JUCE_LIVE_CONSTANT(6);*/ 9;
+        size -= /*JUCE_LIVE_CONSTANT(6);*/ 9;
 
-    powerButton.addCentredArc(r.getCentreX(), 
-        r.getCentreY(), 
-        size * 0.5f, 
-        size * 0.5f, 
-        0.f, 
-        degreesToRadians(ang), 
-        degreesToRadians(360.f - ang),
-        true);
+        powerButton.addCentredArc(r.getCentreX(), 
+            r.getCentreY(), 
+            size * 0.5f, 
+            size * 0.5f, 
+            0.f, 
+            degreesToRadians(ang), 
+            degreesToRadians(360.f - ang),
+            true);
 
-    powerButton.startNewSubPath(r.getCentreX(), r.getY());
-    powerButton.lineTo(r.getCentre());
+        powerButton.startNewSubPath(r.getCentreX(), r.getY());
+        powerButton.lineTo(r.getCentre());
 
-    PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
+        PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
 
-    auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colours::orange;
+        auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colours::orange;
 
-    g.setColour(color);    
+        g.setColour(color);    
 
-    g.strokePath(powerButton, pst);
-    g.drawEllipse(r, 2);
-
+        g.strokePath(powerButton, pst);
+        g.drawEllipse(r, 2);
     
+    }
+    else if (auto* analyserButton = dynamic_cast<AnalyserButton*>(&toggleButton))
+    {
+        auto color = ! toggleButton.getToggleState() ? Colours::dimgrey : Colours::orange;
+        g.setColour(color);
+
+        auto bounds = toggleButton.getLocalBounds();
+        g.drawRect(bounds);
+
+        auto insetRect = bounds.reduced(4);
+
+        Path randomPath;
+
+        Random r;
+
+        // this is not ideal
+        // we should cash some of the values
+        // but we can always refactor later
+        randomPath.startNewSubPath(insetRect.getX(), 
+            insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+
+        for (auto x = insetRect.getX() + 1; x < insetRect.getRight(); x += 2)
+        {
+            randomPath.lineTo(x, 
+                insetRect.getY() + insetRect.getHeight() * r.nextFloat());
+
+        }
+        
+        g.strokePath(randomPath, PathStrokeType(1.f));
+
+    }
 
 
 
@@ -732,7 +764,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     peakBypassButton.setLookAndFeel(&lnf);
     lowcutBypassButton.setLookAndFeel(&lnf);
     highcutBypassButton.setLookAndFeel(&lnf);
-
+    analyserEnabledButton.setLookAndFeel(&lnf);
     setSize (600, 480);
 }
 
@@ -741,6 +773,7 @@ SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
     peakBypassButton.setLookAndFeel(nullptr);
     lowcutBypassButton.setLookAndFeel(nullptr);
     highcutBypassButton.setLookAndFeel(nullptr);
+    analyserEnabledButton.setLookAndFeel(nullptr);
 }
 
 //==============================================================================
@@ -755,6 +788,16 @@ void SimpleEQAudioProcessorEditor::resized()
 {
    
     auto bounds = getLocalBounds();
+
+    auto analyserEnabledArea = bounds.removeFromTop(25);
+    analyserEnabledArea.setWidth(100);
+    analyserEnabledArea.setX(5);
+    analyserEnabledArea.removeFromTop(2);
+
+    analyserEnabledButton.setBounds(analyserEnabledArea);
+
+    bounds.removeFromTop(5);
+
     // with juce_live_constant you can adjust 
     // this value and see the changes on runtime
     float hRatio = 40.f / 100.f;// JUCE_LIVE_CONSTANT(33) / 100.f;
