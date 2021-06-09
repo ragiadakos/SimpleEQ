@@ -208,7 +208,8 @@ juce::String RotarySliderWithLabels::getDisplayString() const
 
 ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) :
     audioProcessor(p),
-    leftChannelFifo(&audioProcessor.leftChannelFifo)
+    leftPathProducer(audioProcessor.leftChannelFifo),
+    rightPathProducer(audioProcessor.rightChannelFifo)
 {
     // add listeners to all parameters
     const auto& params = audioProcessor.getParameters();
@@ -217,19 +218,7 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) :
         param->addListener(this);
     }
 
-    // we are splitting the spectrum 
-    // into 2048 equally sized frequency bins
-    // theese bins store the magnitude level for
-    // the particular range of frequencies
-    // 
-    /*
-    48000 / 2048 = 23Hz per bin    
-    */
-
-    leftChannelFFTDataGenerator.changeOrder(FFTOrder::order8192);
-    monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
-
-   
+     
     updateChain();
 
     startTimerHz(60);
@@ -252,10 +241,9 @@ void ResponseCurveComponent::parameterValueChanged(int parameterIndex, float new
     parametersChanged.set(true);
 }
 
-void ResponseCurveComponent::timerCallback()
+void PathProducer::process(juce::Rectangle<float> fftBounds, double sampleRate)
 {
     // gonna send it to the fft data generator 
-
     juce::AudioBuffer<float> tempIncomingBuffer;
 
     //  while there are buffers to pull
@@ -268,11 +256,11 @@ void ResponseCurveComponent::timerCallback()
             auto size = tempIncomingBuffer.getNumSamples();
 
             juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, 0),
-                monoBuffer.getReadPointer(0,size),
+                monoBuffer.getReadPointer(0, size),
                 monoBuffer.getNumSamples() - size);
 
             juce::FloatVectorOperations::copy(monoBuffer.getWritePointer(0, monoBuffer.getNumSamples() - size),
-                tempIncomingBuffer.getReadPointer(0,0),
+                tempIncomingBuffer.getReadPointer(0, 0),
                 size);
 
 
@@ -282,10 +270,9 @@ void ResponseCurveComponent::timerCallback()
         }
     }
 
-    const auto fftBounds = getAnalysisArea().toFloat();
     const auto fftSize = leftChannelFFTDataGenerator.getFFTSize();
 
-    const auto binWidth = audioProcessor.getSampleRate() / (double)fftSize;
+    const auto binWidth = sampleRate / (double)fftSize;
 
     while (leftChannelFFTDataGenerator.getNumAvailiableFFTDataBlocks() > 0)
     {
@@ -305,6 +292,18 @@ void ResponseCurveComponent::timerCallback()
     {
         pathProducer.getPath(leftChannelFFTPath);
     }
+}
+
+
+void ResponseCurveComponent::timerCallback()
+{
+
+    auto fftBounds = getAnalysisArea().toFloat();
+    auto sampleRate = audioProcessor.getSampleRate();
+
+    leftPathProducer.process(fftBounds, sampleRate);
+    rightPathProducer.process(fftBounds, sampleRate);
+    
 
 
     if (parametersChanged.compareAndSetBool(false, true))
@@ -423,13 +422,16 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
 
+    auto leftChannelFFTPath = leftPathProducer.getPath();
 
     leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 
 
     // draw analyser path
-    //g.setColour(juce::Colours::blue);
+    // fill left path
 
+    // Gradient
+    /*
     float x1 = 0;
     float y1 = getLocalBounds().getCentreY();
     float x2 = getLocalBounds().getRight();
@@ -452,10 +454,19 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 
     g.setGradientFill(grad);
 
-    //g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
-
     g.fillPath(leftChannelFFTPath);
+    */
+
+    g.setColour(juce::Colours::blue);
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.5f));
     
+    // fill right path
+    
+    auto rightChannelFFTPath = rightPathProducer.getPath();
+    rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
+    g.setColour(juce::Colours::red);
+    g.strokePath(rightChannelFFTPath, PathStrokeType(1.5f));
+
 
     // draw border and path
     g.setColour(Colours::orange);
