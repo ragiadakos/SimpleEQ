@@ -96,13 +96,13 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
     g.drawRect(bounds);*/
 
 
-    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
+    auto size = jmin(bounds.getWidth(), bounds.getHeight()) - /*JUCE_LIVE_CONSTANT(6);*/ 6;
 
     auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
 
-    float ang = 30.f;
+    float ang = /*JUCE_LIVE_CONSTANT(30);*/ 30.f;
 
-    size -= 6;
+    size -= /*JUCE_LIVE_CONSTANT(6);*/ 9;
 
     powerButton.addCentredArc(r.getCentreX(), 
         r.getCentreY(), 
