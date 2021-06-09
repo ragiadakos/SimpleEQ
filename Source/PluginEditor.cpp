@@ -428,9 +428,34 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 
 
     // draw analyser path
-    g.setColour(juce::Colours::blue);
-    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+    //g.setColour(juce::Colours::blue);
 
+    float x1 = 0;
+    float y1 = getLocalBounds().getCentreY();
+    float x2 = getLocalBounds().getRight();
+    float y2 = y1;
+
+    Colour red = Colours::red;
+    Colour yellow = Colours::yellow;
+    Colour green = Colours::limegreen;
+    Colour cyan = Colours::cyan;
+    Colour blue = Colours::blue;
+    Colour purple = Colours::purple;
+
+    ColourGradient grad;
+
+    grad = { red, x1, y1, purple, x2, y2, true };
+    grad.addColour(0.5,yellow);
+    grad.addColour(0.6,green);
+    grad.addColour(0.85,cyan);
+    grad.addColour(0.95,blue);
+
+    g.setGradientFill(grad);
+
+    //g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+
+    g.fillPath(leftChannelFFTPath);
+    
 
     // draw border and path
     g.setColour(Colours::orange);
