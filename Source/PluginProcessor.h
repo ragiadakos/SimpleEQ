@@ -186,6 +186,8 @@ struct ChainSettings
     // Instead of integers the slopes are now expressed in Slope type objects
     Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
 
+    bool lowCutBypassed{ false }, peakBypassed{ false }, highCutBypassed{ false }/*, analyserEnabled{ true }*/;
+
 };
 
 // function that return the parameters in a ChainSettings struct
