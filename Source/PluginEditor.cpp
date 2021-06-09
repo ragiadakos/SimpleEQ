@@ -258,7 +258,7 @@ void ResponseCurveComponent::timerCallback()
 
     juce::AudioBuffer<float> tempIncomingBuffer;
 
-    // while there are buffers to pull
+    //  while there are buffers to pull
     while (leftChannelFifo->getNumCompleteBuffersAvailiable() > 0)
     {
         // if we can pull this buffer
@@ -422,6 +422,9 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
     {
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
     }
+
+
+    leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), responseArea.getY()));
 
 
     // draw analyser path

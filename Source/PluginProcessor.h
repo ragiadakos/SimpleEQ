@@ -128,7 +128,7 @@ struct SingleChannelSampleFifo
     bool isPrepared() const { return prepared.get(); }
     int getSize() const { return size.get(); }
     //=============================================================
-    bool getAudioBuffer(BlockType buf) { return audioBufferFifo.pull(buf); }
+    bool getAudioBuffer(BlockType& buf) { return audioBufferFifo.pull(buf); }
 private:
     Channel channelToUse;
     int fifoIndex = 0;
@@ -328,7 +328,7 @@ public:
     using BlockType = juce::AudioBuffer<float>;
 
     SingleChannelSampleFifo<BlockType> leftChannelFifo{ Channel::Left };
-    SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
+    //SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
 
 
 
