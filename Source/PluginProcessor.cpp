@@ -108,7 +108,13 @@ void SimpleEQAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     updateFilters(); // i missed that idk when it seemed to work fine thought
 
     leftChannelFifo.prepare(samplesPerBlock);
-    //rightChannelFifo.prepare(samplesPerBlock);
+    rightChannelFifo.prepare(samplesPerBlock);
+
+    osc.initialise([](float x) {return std::sin(x); });
+
+    spec.numChannels = getTotalNumOutputChannels();
+    osc.prepare(spec);
+    osc.setFrequency(200.f);
 }
 
 void SimpleEQAudioProcessor::releaseResources()
@@ -161,8 +167,16 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     updateFilters();
 
+
+
+
     // First we crate an audioBlock which grabs this buffer
     juce::dsp::AudioBlock<float> block(buffer);
+    
+    // osc
+    buffer.clear();
+    juce::dsp::ProcessContextReplacing<float> stereoContext(block);
+    osc.process(stereoContext);
 
     // Then we can use the helper function to extract the 2 channels individually
     auto leftBlock = block.getSingleChannelBlock(0);
@@ -178,7 +192,7 @@ void SimpleEQAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
 
     leftChannelFifo.update(buffer);
-    //rightChannelFifo.update(buffer);
+    rightChannelFifo.update(buffer);
 
 }
 

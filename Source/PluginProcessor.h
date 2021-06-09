@@ -328,7 +328,7 @@ public:
     using BlockType = juce::AudioBuffer<float>;
 
     SingleChannelSampleFifo<BlockType> leftChannelFifo{ Channel::Left };
-    //SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
+    SingleChannelSampleFifo<BlockType> rightChannelFifo{ Channel::Right };
 
 
 
@@ -345,6 +345,8 @@ private:
 
     void updateFilters();
         
+
+    juce::dsp::Oscillator<float> osc;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
