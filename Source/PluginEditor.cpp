@@ -326,6 +326,12 @@ void ResponseCurveComponent::updateChain()
     // grab the mono chain
     auto chainSettings = getChainSettings(audioProcessor.apvts);
 
+    monoChain.setBypassed<ChainPossitions::LowCut>(chainSettings.lowCutBypassed);
+    monoChain.setBypassed<ChainPossitions::Peak>(chainSettings.peakBypassed);
+    monoChain.setBypassed<ChainPossitions::HighCut>(chainSettings.highCutBypassed);
+        
+
+
     // make coeff
     auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
     auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
@@ -376,25 +382,30 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
         // get the response curve for each filter on each pixel/freq
         if (!monoChain.isBypassed<ChainPossitions::Peak>())
             mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        
+        if (!monoChain.isBypassed<ChainPossitions::LowCut>())
+        {
+            if (!lowcut.isBypassed<0>())
+                mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<1>())
+                mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<2>())
+                mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!lowcut.isBypassed<3>())
+                mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
 
-        if (!lowcut.isBypassed<0>())
-            mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<1>())
-            mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<2>())
-            mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!lowcut.isBypassed<3>())
-            mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-
-        if (!highcut.isBypassed<0>())
-            mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<1>())
-            mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<2>())
-            mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-        if (!highcut.isBypassed<3>())
-            mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
-
+        if (!monoChain.isBypassed<ChainPossitions::HighCut>())
+        {
+            if (!highcut.isBypassed<0>())
+                mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<1>())
+                mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<2>())
+                mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if (!highcut.isBypassed<3>())
+                mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
         // store the value to our vector in dB
         mags[i] = Decibels::gainToDecibels(mag);
 
@@ -640,7 +651,12 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     lowCutFreqSliderAttachment  (audioProcessor.apvts, "LowCut Freq",   lowCutFreqSlider),
     highCutFreqSliderAttachment (audioProcessor.apvts, "HighCut Freq",  highCutFreqSlider),
     lowCutSlopeSliderAttachment (audioProcessor.apvts, "LowCut Slope",  lowCutSlopeSlider),
-    highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+    highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider),
+
+    lowcutBypassButtonAttachment(audioProcessor.apvts, "LowCut Bypassed", lowcutBypassButton),
+    highcutBypassButtonAttachment(audioProcessor.apvts, "HighCut Bypassed", highcutBypassButton),
+    peakBypassButtonAttachment(audioProcessor.apvts, "Peak Bypassed", peakBypassButton),
+    analyserEnabledButtonAttachment(audioProcessor.apvts, "Analyser Enabled", analyserEnabledButton)
 
 {
     // Make sure that before the constructor has finished, you've set the
@@ -689,7 +705,7 @@ void SimpleEQAudioProcessorEditor::resized()
     auto bounds = getLocalBounds();
     // with juce_live_constant you can adjust 
     // this value and see the changes on runtime
-    float hRatio = 0.33f;// JUCE_LIVE_CONSTANT(33) / 100.f;
+    float hRatio = 40.f / 100.f;// JUCE_LIVE_CONSTANT(33) / 100.f;
 
     // bounds changes size and position after each removeFrom.. call
     auto responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
@@ -701,6 +717,8 @@ void SimpleEQAudioProcessorEditor::resized()
     auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
     auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
 
+    lowcutBypassButton.setBounds(lowCutArea.removeFromTop(25));
+    highcutBypassButton.setBounds(highCutArea.removeFromTop(25));
 
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
     lowCutSlopeSlider.setBounds(lowCutArea);
@@ -708,6 +726,7 @@ void SimpleEQAudioProcessorEditor::resized()
     highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
     highCutSlopeSlider.setBounds(highCutArea);
 
+    peakBypassButton.setBounds(bounds.removeFromTop(25));
 
     peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
     peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
@@ -729,6 +748,11 @@ std::vector<juce::Component*> SimpleEQAudioProcessorEditor::getComps()
         &highCutFreqSlider,
         &lowCutSlopeSlider,
         &highCutSlopeSlider,
-        &responseCurveComponent
+        &responseCurveComponent,
+
+        &lowcutBypassButton,
+        &highcutBypassButton,
+        &peakBypassButton,
+        &analyserEnabledButton
     };
 }

@@ -400,9 +400,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleEQAudioProcessor::crea
         "HighCut Bypassed",
         false));
     
-    /*layout.add(std::make_unique<juce::AudioParameterBool>("Analyser Enabled",
+    layout.add(std::make_unique<juce::AudioParameterBool>("Analyser Enabled",
         "Analyser Enabled",
-        true));*/
+        true));
     
     
 
