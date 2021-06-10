@@ -12,16 +12,9 @@
 #include "Fifo.h"
 #include "SingleChannelSampleFifo.h"
 #include "Slope.h"
+#include "ChainPossitions.h"
 
 
-// we need this enum class to easilly access the individual filters 
-// inside the chain
-enum ChainPossitions
-{
-    LowCut,
-    Peak,
-    HighCut
-};
 
 
 // struct that contains the filter parameters

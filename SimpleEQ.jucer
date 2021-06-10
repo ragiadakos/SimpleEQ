@@ -4,9 +4,14 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="rLdSX4" name="SimpleEQ">
     <GROUP id="{F69ECF0C-FE28-921A-ED8B-DCA55A931D9B}" name="Source">
-      <FILE id="Bg2qDf" name="Slope.h" compile="0" resource="0" file="Source/Slope.h"/>
-      <FILE id="gXRpgz" name="SingleChannelSampleFifo.h" compile="0" resource="0"
-            file="Source/SingleChannelSampleFifo.h"/>
+      <GROUP id="{DFE4F6F6-F13B-1AC4-1E35-3AE75FB2B9ED}" name="includes">
+        <FILE id="EnKfl2" name="ChainPossitions.h" compile="0" resource="0"
+              file="Source/ChainPossitions.h"/>
+        <FILE id="gXRpgz" name="SingleChannelSampleFifo.h" compile="0" resource="0"
+              file="Source/SingleChannelSampleFifo.h"/>
+        <FILE id="HGMehJ" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
+        <FILE id="Bg2qDf" name="Slope.h" compile="0" resource="0" file="Source/Slope.h"/>
+      </GROUP>
       <FILE id="zFA52x" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="RUVrJU" name="PluginProcessor.h" compile="0" resource="0"
@@ -14,7 +19,6 @@
       <FILE id="oea6V4" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="nZUS5x" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
-      <FILE id="HGMehJ" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
