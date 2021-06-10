@@ -11,16 +11,8 @@
 #include <JuceHeader.h>
 #include "Fifo.h"
 #include "SingleChannelSampleFifo.h"
+#include "Slope.h"
 
-
-// this enum helps with setting the coefficients for the filters
-enum Slope
-{
-    Slope_12,
-    Slope_24,
-    Slope_36,
-    Slope_48,
-};
 
 // we need this enum class to easilly access the individual filters 
 // inside the chain

@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="rLdSX4" name="SimpleEQ">
     <GROUP id="{F69ECF0C-FE28-921A-ED8B-DCA55A931D9B}" name="Source">
+      <FILE id="Bg2qDf" name="Slope.h" compile="0" resource="0" file="Source/Slope.h"/>
       <FILE id="gXRpgz" name="SingleChannelSampleFifo.h" compile="0" resource="0"
             file="Source/SingleChannelSampleFifo.h"/>
       <FILE id="zFA52x" name="PluginProcessor.cpp" compile="1" resource="0"
