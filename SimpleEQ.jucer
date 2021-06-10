@@ -14,6 +14,8 @@
         <FILE id="Bg2qDf" name="Slope.h" compile="0" resource="0" file="Source/Slope.h"/>
       </GROUP>
       <GROUP id="{15007B33-2C57-F465-A162-62DECADC4580}" name="gui_includes">
+        <FILE id="hhF1tC" name="AnalyserPathGenerator.h" compile="0" resource="0"
+              file="Source/AnalyserPathGenerator.h"/>
         <FILE id="DkSiDf" name="FFTOrder.h" compile="0" resource="0" file="Source/FFTOrder.h"/>
         <FILE id="Jgu6i1" name="FFTDataGenerator.h" compile="0" resource="0"
               file="Source/FFTDataGenerator.h"/>
