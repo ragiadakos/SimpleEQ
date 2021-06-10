@@ -11,6 +11,8 @@
       <FILE id="oea6V4" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="nZUS5x" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="uT7Y79" name="Fifo.cpp" compile="1" resource="0" file="Source/Fifo.cpp"/>
+      <FILE id="HGMehJ" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
