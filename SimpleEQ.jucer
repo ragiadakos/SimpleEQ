@@ -4,7 +4,7 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="rLdSX4" name="SimpleEQ">
     <GROUP id="{F69ECF0C-FE28-921A-ED8B-DCA55A931D9B}" name="Source">
-      <GROUP id="{DFE4F6F6-F13B-1AC4-1E35-3AE75FB2B9ED}" name="includes">
+      <GROUP id="{DFE4F6F6-F13B-1AC4-1E35-3AE75FB2B9ED}" name="dsp_includes">
         <FILE id="vTS2x4" name="ChainSettings.h" compile="0" resource="0" file="Source/ChainSettings.h"/>
         <FILE id="EnKfl2" name="ChainPossitions.h" compile="0" resource="0"
               file="Source/ChainPossitions.h"/>
@@ -12,6 +12,11 @@
               file="Source/SingleChannelSampleFifo.h"/>
         <FILE id="HGMehJ" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
         <FILE id="Bg2qDf" name="Slope.h" compile="0" resource="0" file="Source/Slope.h"/>
+      </GROUP>
+      <GROUP id="{15007B33-2C57-F465-A162-62DECADC4580}" name="gui_includes">
+        <FILE id="DkSiDf" name="FFTOrder.h" compile="0" resource="0" file="Source/FFTOrder.h"/>
+        <FILE id="Jgu6i1" name="FFTDataGenerator.h" compile="0" resource="0"
+              file="Source/FFTDataGenerator.h"/>
       </GROUP>
       <FILE id="zFA52x" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
